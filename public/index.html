@@ -366,6 +366,16 @@ input[type=color]{
             </div>
 
             <div class="field">
+                <label for="loop">Repetición de la animación</label>
+                <select id="loop">
+                    <option value="0" selected>Infinita (recomendado)</option>
+                    <option value="-1">Reproducir una sola vez</option>
+                    <option value="3">Repetir 3 veces adicionales</option>
+                    <option value="5">Repetir 5 veces adicionales</option>
+                </select>
+            </div>
+
+            <div class="field">
                 <label for="mode">Ajuste de las imágenes</label>
                 <select id="mode">
                     <option value="cover">Cubrir y recortar</option>
@@ -558,6 +568,7 @@ generateButton.addEventListener("click",async()=>{
     data.append("width",document.getElementById("width").value);
     data.append("height",document.getElementById("height").value);
     data.append("duration",document.getElementById("duration").value);
+    data.append("loop",document.getElementById("loop").value);
     data.append("mode",document.getElementById("mode").value);
     data.append("colors",document.getElementById("colors").value);
     data.append("background",background.value);
