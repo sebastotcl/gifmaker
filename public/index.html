@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GIF Maker | Protool</title>
+<style>
+:root{
+    --bg:#111315;
+    --panel:#1b1e21;
+    --panel2:#24282c;
+    --lime:#88c03d;
+    --white:#ffffff;
+    --grey:#aeb6bf;
+    --danger:#ef5350;
+}
+*{box-sizing:border-box}
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--white);
+    font-family:Arial,Helvetica,sans-serif;
+}
+header{
+    border-bottom:1px solid #2c3034;
+    background:#17191b;
+}
+.header-inner{
+    max-width:1120px;
+    margin:auto;
+    min-height:70px;
+    padding:0 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+.brand{
+    font-size:21px;
+    font-weight:800;
+    letter-spacing:.5px;
+}
+.brand span{color:var(--lime)}
+.badge{
+    padding:7px 13px;
+    border:1px solid var(--lime);
+    border-radius:20px;
+    color:var(--lime);
+    font-size:12px;
+    font-weight:700;
+}
+main{
+    max-width:1120px;
+    margin:34px auto;
+    padding:0 24px 50px;
+}
+.intro{margin-bottom:25px}
+.intro small{
+    color:var(--lime);
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+.intro h1{
+    margin:7px 0;
+    font-size:34px;
+}
+.intro p{
+    margin:0;
+    color:var(--grey);
+}
+.grid{
+    display:grid;
+    grid-template-columns:1.15fr .85fr;
+    gap:22px;
+}
+.panel{
+    background:var(--panel);
+    border:1px solid #2b3035;
+    border-radius:18px;
+    padding:22px;
+}
+.panel h2{
+    margin:0 0 18px;
+    font-size:18px;
+}
+.dropzone{
+    min-height:180px;
+    border:2px dashed #46505a;
+    border-radius:15px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:25px;
+    cursor:pointer;
+    transition:.2s;
+}
+.dropzone:hover,.dropzone.dragover{
+    border-color:var(--lime);
+    background:rgba(136,192,61,.06);
+}
+.drop-icon{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    background:var(--lime);
+    color:#17200d;
+    display:grid;
+    place-items:center;
+    font-size:25px;
+    font-weight:bold;
+    margin-bottom:12px;
+}
+.dropzone strong{font-size:16px}
+.dropzone span{
+    margin-top:6px;
+    color:var(--grey);
+    font-size:13px;
+}
+#fileInput{display:none}
+.frames{
+    margin-top:16px;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+}
+.frame{
+    background:var(--panel2);
+    border:1px solid #343a40;
+    border-radius:12px;
+    padding:9px;
+    display:flex;
+    align-items:center;
+    gap:11px;
+    cursor:grab;
+}
+.frame.dragging{opacity:.35}
+.frame img{
+    width:68px;
+    height:44px;
+    object-fit:cover;
+    border-radius:7px;
+    background:#111;
+}
+.handle{
+    color:var(--grey);
+    font-size:18px;
+}
+.frame-info{
+    min-width:0;
+    flex:1;
+}
+.frame-name{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:13px;
+    font-weight:700;
+}
+.frame-size{
+    margin-top:3px;
+    color:var(--grey);
+    font-size:11px;
+}
+.remove{
+    border:0;
+    width:31px;
+    height:31px;
+    border-radius:8px;
+    cursor:pointer;
+    background:#3a2425;
+    color:#ff8c89;
+    font-weight:bold;
+}
+.empty{
+    color:var(--grey);
+    font-size:13px;
+    text-align:center;
+    padding:16px 0 2px;
+}
+.presets{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+    margin-bottom:17px;
+}
+.preset{
+    border:1px solid #3b4249;
+    background:var(--panel2);
+    color:var(--white);
+    padding:10px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:12px;
+}
+.preset:hover,.preset.active{
+    color:var(--lime);
+    border-color:var(--lime);
+}
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:13px;
+}
+.field{margin-bottom:14px}
+.field label{
+    display:block;
+    margin-bottom:7px;
+    color:#d8dde2;
+    font-size:12px;
+    font-weight:700;
+}
+input,select{
+    width:100%;
+    border:1px solid #3b4249;
+    background:#121416;
+    color:var(--white);
+    border-radius:10px;
+    padding:11px 12px;
+    outline:none;
+}
+input:focus,select:focus{border-color:var(--lime)}
+.color-row{
+    display:grid;
+    grid-template-columns:55px 1fr;
+    gap:8px;
+}
+input[type=color]{
+    padding:3px;
+    height:40px;
+}
+.generate{
+    width:100%;
+    border:0;
+    border-radius:12px;
+    padding:14px;
+    background:var(--lime);
+    color:#17200d;
+    font-weight:900;
+    font-size:15px;
+    cursor:pointer;
+}
+.generate:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+}
+.message{
+    margin-top:13px;
+    padding:11px;
+    border-radius:10px;
+    display:none;
+    font-size:13px;
+}
+.message.error{
+    display:block;
+    color:#ffaaa7;
+    background:#3a2425;
+}
+.result{
+    display:none;
+    margin-top:22px;
+    padding-top:22px;
+    border-top:1px solid #32373c;
+}
+.result.show{display:block}
+.result img{
+    width:100%;
+    display:block;
+    border-radius:12px;
+    background:#101214;
+}
+.result-meta{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    margin:11px 0;
+    color:var(--grey);
+    font-size:12px;
+}
+.download{
+    display:block;
+    text-align:center;
+    text-decoration:none;
+    padding:12px;
+    border-radius:11px;
+    border:1px solid var(--lime);
+    color:var(--lime);
+    font-weight:800;
+}
+.note{
+    color:var(--grey);
+    font-size:11px;
+    line-height:1.45;
+    margin:13px 0 0;
+}
+@media(max-width:800px){
+    .grid{grid-template-columns:1fr}
+    .intro h1{font-size:27px}
+}
+</style>
+</head>
+<body>
+<header>
+    <div class="header-inner">
+        <div class="brand"><span>GIF</span> MAKER</div>
+        <div class="badge">PROtool.cl</div>
+    </div>
+</header>
+
+<main>
+    <section class="intro">
+        <small>Generador online</small>
+        <h1>Convierte tus imágenes en un GIF</h1>
+        <p>Sube, ordena y transforma imágenes estáticas en una animación optimizada.</p>
+    </section>
+
+    <div class="grid">
+        <section class="panel">
+            <h2>1. Agrega y ordena tus imágenes</h2>
+
+            <div class="dropzone" id="dropzone">
+                <div class="drop-icon">+</div>
+                <strong>Arrastra tus imágenes aquí</strong>
+                <span>o haz clic para seleccionarlas · PNG, JPG o WEBP</span>
+            </div>
+
+            <input id="fileInput" type="file" accept=".png,.jpg,.jpeg,.webp" multiple>
+
+            <div id="frames" class="frames"></div>
+            <div id="empty" class="empty">Todavía no has agregado imágenes.</div>
+        </section>
+
+        <section class="panel">
+            <h2>2. Configura tu GIF</h2>
+
+            <div class="presets">
+                <button class="preset active" data-width="600" data-height="350">Cluvox · 600 × 350</button>
+                <button class="preset" data-width="1080" data-height="1080">Cuadrado · 1080 × 1080</button>
+                <button class="preset" data-width="1080" data-height="1350">Publicación · 1080 × 1350</button>
+                <button class="preset" data-width="1080" data-height="1920">Historia · 1080 × 1920</button>
+            </div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label for="width">Ancho (px)</label>
+                    <input id="width" type="number" value="600" min="200" max="1920">
+                </div>
+                <div class="field">
+                    <label for="height">Alto (px)</label>
+                    <input id="height" type="number" value="350" min="200" max="1920">
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="duration">Duración de cada pantalla</label>
+                <select id="duration">
+                    <option value="1000">1 segundo</option>
+                    <option value="1500">1,5 segundos</option>
+                    <option value="2000">2 segundos</option>
+                    <option value="2500" selected>2,5 segundos</option>
+                    <option value="3000">3 segundos</option>
+                    <option value="4000">4 segundos</option>
+                    <option value="5000">5 segundos</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="mode">Ajuste de las imágenes</label>
+                <select id="mode">
+                    <option value="cover">Cubrir y recortar</option>
+                    <option value="contain">Mostrar completas sin recortar</option>
+                </select>
+            </div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label for="colors">Calidad de color</label>
+                    <select id="colors">
+                        <option value="64">Liviano · 64 colores</option>
+                        <option value="128" selected>Equilibrado · 128 colores</option>
+                        <option value="256">Máximo · 256 colores</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Color de fondo</label>
+                    <div class="color-row">
+                        <input id="backgroundPicker" type="color" value="#1a1a1a">
+                        <input id="background" type="text" value="#1a1a1a" maxlength="7">
+                    </div>
+                </div>
+            </div>
+
+            <button id="generate" class="generate" disabled>Generar GIF</button>
+            <div id="message" class="message"></div>
+
+            <div id="result" class="result">
+                <img id="preview" alt="Previsualización del GIF">
+                <div class="result-meta">
+                    <span id="resultDimensions"></span>
+                    <span id="resultSize"></span>
+                </div>
+                <a id="download" class="download" href="#">Descargar GIF</a>
+            </div>
+
+            <p class="note">
+                Para obtener archivos livianos utiliza imágenes del mismo tamaño, pocas pantallas y evita transiciones.
+            </p>
+        </section>
+    </div>
+</main>
+
+<script>
+const dropzone=document.getElementById("dropzone");
+const fileInput=document.getElementById("fileInput");
+const framesContainer=document.getElementById("frames");
+const empty=document.getElementById("empty");
+const generateButton=document.getElementById("generate");
+const message=document.getElementById("message");
+const result=document.getElementById("result");
+const backgroundPicker=document.getElementById("backgroundPicker");
+const background=document.getElementById("background");
+
+let selectedFiles=[];
+let draggedIndex=null;
+
+dropzone.addEventListener("click",()=>fileInput.click());
+
+dropzone.addEventListener("dragover",event=>{
+    event.preventDefault();
+    dropzone.classList.add("dragover");
+});
+
+dropzone.addEventListener("dragleave",()=>{
+    dropzone.classList.remove("dragover");
+});
+
+dropzone.addEventListener("drop",event=>{
+    event.preventDefault();
+    dropzone.classList.remove("dragover");
+    addFiles([...event.dataTransfer.files]);
+});
+
+fileInput.addEventListener("change",event=>{
+    addFiles([...event.target.files]);
+    fileInput.value="";
+});
+
+function addFiles(files){
+    const valid=files.filter(file=>
+        ["image/png","image/jpeg","image/webp"].includes(file.type)
+    );
+
+    selectedFiles=[...selectedFiles,...valid].slice(0,20);
+    renderFrames();
+}
+
+function renderFrames(){
+    framesContainer.innerHTML="";
+    empty.style.display=selectedFiles.length ? "none" : "block";
+    generateButton.disabled=selectedFiles.length<2;
+
+    selectedFiles.forEach((file,index)=>{
+        const row=document.createElement("div");
+        row.className="frame";
+        row.draggable=true;
+        row.dataset.index=index;
+
+        const handle=document.createElement("span");
+        handle.className="handle";
+        handle.textContent="☰";
+
+        const image=document.createElement("img");
+        image.src=URL.createObjectURL(file);
+
+        const info=document.createElement("div");
+        info.className="frame-info";
+
+        const name=document.createElement("div");
+        name.className="frame-name";
+        name.textContent=`${index+1}. ${file.name}`;
+
+        const size=document.createElement("div");
+        size.className="frame-size";
+        size.textContent=`${(file.size/1024/1024).toFixed(2)} MB`;
+
+        const remove=document.createElement("button");
+        remove.className="remove";
+        remove.type="button";
+        remove.textContent="×";
+        remove.addEventListener("click",()=>{
+            selectedFiles.splice(index,1);
+            renderFrames();
+        });
+
+        info.append(name,size);
+        row.append(handle,image,info,remove);
+
+        row.addEventListener("dragstart",()=>{
+            draggedIndex=index;
+            row.classList.add("dragging");
+        });
+
+        row.addEventListener("dragend",()=>{
+            row.classList.remove("dragging");
+            draggedIndex=null;
+        });
+
+        row.addEventListener("dragover",event=>{
+            event.preventDefault();
+        });
+
+        row.addEventListener("drop",event=>{
+            event.preventDefault();
+            const targetIndex=Number(row.dataset.index);
+
+            if(draggedIndex===null || draggedIndex===targetIndex) return;
+
+            const [moved]=selectedFiles.splice(draggedIndex,1);
+            selectedFiles.splice(targetIndex,0,moved);
+            renderFrames();
+        });
+
+        framesContainer.appendChild(row);
+    });
+}
+
+document.querySelectorAll(".preset").forEach(button=>{
+    button.addEventListener("click",()=>{
+        document.querySelectorAll(".preset").forEach(item=>item.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById("width").value=button.dataset.width;
+        document.getElementById("height").value=button.dataset.height;
+    });
+});
+
+backgroundPicker.addEventListener("input",()=>{
+    background.value=backgroundPicker.value;
+});
+
+background.addEventListener("input",()=>{
+    if(/^#[0-9a-fA-F]{6}$/.test(background.value)){
+        backgroundPicker.value=background.value;
+    }
+});
+
+generateButton.addEventListener("click",async()=>{
+    if(selectedFiles.length<2) return;
+
+    generateButton.disabled=true;
+    generateButton.textContent="Generando GIF...";
+    message.className="message";
+    result.classList.remove("show");
+
+    const data=new FormData();
+
+    selectedFiles.forEach(file=>data.append("images",file));
+    data.append("width",document.getElementById("width").value);
+    data.append("height",document.getElementById("height").value);
+    data.append("duration",document.getElementById("duration").value);
+    data.append("mode",document.getElementById("mode").value);
+    data.append("colors",document.getElementById("colors").value);
+    data.append("background",background.value);
+
+    try{
+        const response=await fetch("/generate",{
+            method:"POST",
+            body:data
+        });
+
+        const json=await response.json();
+
+        if(!response.ok || !json.ok){
+            throw new Error(json.message || "No pudimos generar el GIF.");
+        }
+
+        document.getElementById("preview").src=`${json.preview}?t=${Date.now()}`;
+        document.getElementById("download").href=json.download;
+        document.getElementById("resultDimensions").textContent=
+            `${json.width} × ${json.height} px · ${json.frames} pantallas`;
+        document.getElementById("resultSize").textContent=`${json.size_mb} MB`;
+        result.classList.add("show");
+    }catch(error){
+        message.textContent=error.message;
+        message.className="message error";
+    }finally{
+        generateButton.disabled=selectedFiles.length<2;
+        generateButton.textContent="Generar GIF";
+    }
+});
+</script>
+</body>
+</html>
