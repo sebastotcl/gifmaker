@@ -11,7 +11,7 @@
     "node": ">=20"
   },
   "dependencies": {
-    "sharp": "^0.34.4",
+    "sharp": "^0.35.5",
     "gif-encoder-2": "^1.0.5",
     "busboy": "^1.6.0"
   }
