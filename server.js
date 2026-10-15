@@ -37,7 +37,9 @@ function settings(fields){
   const colors=clamp(fields.colors,128,32,256);
   const mode=['cover','contain'].includes(fields.mode)?fields.mode:'cover';
   const background=/^#[0-9a-fA-F]{6}$/.test(fields.background||'')?fields.background:'#1a1a1a';
-  return {width,height,duration,colors,mode,background};
+  const loop=fields.loop===undefined?0:Number(fields.loop);
+  if(![-1,0,3,5].includes(loop))throw fail('La repetición seleccionada no es válida.');
+  return {width,height,duration,colors,mode,background,loop};
 }
 async function receive(req){
   const type=req.headers['content-type']||'';
@@ -48,7 +50,7 @@ async function receive(req){
   let rejected=null;
   const bb=Busboy({headers:req.headers,limits:{files:MAX_FILES+1,fileSize:MAX_UPLOAD,fields:12,fieldSize:256,parts:MAX_FILES+13}});
   await new Promise((resolve,reject)=>{
-    bb.on('field',(name,value)=>{if(['width','height','duration','colors','mode','background'].includes(name))fields[name]=value;});
+    bb.on('field',(name,value)=>{if(['width','height','duration','colors','mode','background','loop'].includes(name))fields[name]=value;});
     bb.on('file',(name,stream,info)=>{
       const chunks=[];
       let size=0;
@@ -80,9 +82,9 @@ async function generate(req,res){
   activeJobs++;
   try{
     const {files,fields}=await receive(req);
-    const {width,height,duration,colors,mode,background}=settings(fields);
+    const {width,height,duration,colors,mode,background,loop}=settings(fields);
     const encoder=new GIFEncoder(width,height,'neuquant',false,files.length);
-    encoder.setRepeat(0);
+    encoder.setRepeat(loop);
     encoder.setDelay(duration);
     encoder.setQuality(Math.max(1,Math.round(256/colors)));
     encoder.start();
